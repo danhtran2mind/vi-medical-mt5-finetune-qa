@@ -60,7 +60,6 @@ def generate_text(tokenizer, model, device, prompt, max_length=100,
         input_ids,
         max_length=max_length,
         num_return_sequences=num_return_sequences,
-        top_k=50,
         top_p=top_p,
         temperature=temperature,
     )
