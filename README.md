@@ -1,5 +1,4 @@
-# vi-medical-t5-finetune-qa
-
+# Vietnames Medical T5 Finetune Question and Answer
 ## Dataset
 You can download dataset at this url: https://github.com/triet2397/UIT-ViCoV19QA
 ## Metrics
