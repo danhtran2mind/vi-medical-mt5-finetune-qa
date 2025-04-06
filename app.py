@@ -1,4 +1,5 @@
 import torch
+import sentencepiece
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import gradio as gr
 import subprocess
@@ -13,13 +14,17 @@ def run_shell_command(command):
 
 def load_model_and_tokenizer(model_path):
     # Load the trained tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    tokenizer = AutoTokenizer.from_pretrained(model_path, add_prefix_space=True)
 
     # Load the trained model
     model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
 
     # Move the model to the GPU if available
-    device = torch.device("cuda" if torch.cuda.is available() else "cpu")
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+        
     model.to(device)
 
     return tokenizer, model, device
@@ -56,12 +61,11 @@ if not os.path.exists('models'):
 if not os.path.exists('models/vi-medical-t5-finetune-qa'):
     # Run the Git LFS commands to clone the model
     run_shell_command('git lfs install')
-    run_shell_command('cd models && git lfs clone https://huggingface.co/danhtran2mind/vi-medical-t5-finetune-qa && cd ..')
+    run_shell_command('cd models && git clone https://huggingface.co/danhtran2mind/vi-medical-t5-finetune-qa && cd ..')
 
 # Load the trained model and tokenizer
 model_path = "models/vi-medical-t5-finetune-qa"
 tokenizer, model, device = load_model_and_tokenizer(model_path)
-
 # Create Gradio interface
 iface = gr.Interface(
     fn=gradio_generate_text,
