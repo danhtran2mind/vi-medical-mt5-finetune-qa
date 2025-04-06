@@ -53,10 +53,10 @@ def gradio_generate_text(prompt, max_length=100, num_return_sequences=1, top_p=0
 # Ensure the models directory exists
 if not os.path.exists('models'):
     os.makedirs('models')
-
-# Run the Git LFS commands to clone the model
-run_shell_command('git lfs install')
-run_shell_command('cd models && git lfs clone https://huggingface.co/danhtran2mind/vi-medical-t5-finetune-qa && cd ..')
+if not os.path.exists('models/vi-medical-t5-finetune-qa'):
+    # Run the Git LFS commands to clone the model
+    run_shell_command('git lfs install')
+    run_shell_command('cd models && git lfs clone https://huggingface.co/danhtran2mind/vi-medical-t5-finetune-qa && cd ..')
 
 # Load the trained model and tokenizer
 model_path = "models/vi-medical-t5-finetune-qa"
