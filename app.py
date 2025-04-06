@@ -60,11 +60,9 @@ def generate_text(tokenizer, model, device, prompt, max_length=100,
         input_ids,
         max_length=max_length,
         num_return_sequences=num_return_sequences,
-        no_repeat_ngram_size=2,
         top_k=50,
         top_p=top_p,
         temperature=temperature,
-        do_sample=True
     )
 
     # Convert the generated text back to a string
