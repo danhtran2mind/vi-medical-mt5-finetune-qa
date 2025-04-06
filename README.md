@@ -25,3 +25,19 @@ cd ..
 python app.py
 ```
 - Your app will run at `localhost:7860`
+
+## Denpendencies Enviroment
+- Python version: 3.10.12
+- Libraries verions:
+  ```bash
+  pandas==2.2.3
+  numpy==1.26.4
+  matplotlib==3.7.5
+  scikit-learn==1.2.2
+  gensim==4.3.3
+  underthesea==6.8.4
+  tensorflow==2.17.1
+  datasets==3.3.1
+  torch==2.5.1+cu121
+  transformers==4.47.0
+  ```
