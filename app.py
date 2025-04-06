@@ -5,6 +5,7 @@ import gradio as gr
 import subprocess
 import os
 import string
+import re
 
 def run_shell_command(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
