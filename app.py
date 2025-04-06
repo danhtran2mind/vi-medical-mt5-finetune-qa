@@ -1,6 +1,15 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import gradio as gr
+import subprocess
+import os
+
+def run_shell_command(command):
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+    output, error = process.communicate()
+    if error:
+        raise Exception(f"Error running command: {command}\n{error.decode('utf-8')}")
+    return output.decode('utf-8')
 
 def load_model_and_tokenizer(model_path):
     # Load the trained tokenizer
@@ -10,7 +19,7 @@ def load_model_and_tokenizer(model_path):
     model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
 
     # Move the model to the GPU if available
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is available() else "cpu")
     model.to(device)
 
     return tokenizer, model, device
@@ -37,13 +46,21 @@ def generate_text(tokenizer, model, device, prompt, max_length=100,
 
     return generated_text
 
-# Load the trained model and tokenizer
-model_path = "danhtran2mind/vi-medical-t5-finetune"
-tokenizer, model, device = load_model_and_tokenizer(model_path)
-
 def gradio_generate_text(prompt, max_length=100, num_return_sequences=1, top_p=0.95, temperature=0.7):
     generated_text = generate_text(tokenizer, model, device, prompt, max_length, num_return_sequences, top_p, temperature)
     return generated_text
+
+# Ensure the models directory exists
+if not os.path.exists('models'):
+    os.makedirs('models')
+
+# Run the Git LFS commands to clone the model
+run_shell_command('git lfs install')
+run_shell_command('cd models && git lfs clone https://huggingface.co/danhtran2mind/vi-medical-t5-finetune-qa && cd ..')
+
+# Load the trained model and tokenizer
+model_path = "models/vi-medical-t5-finetune-qa"
+tokenizer, model, device = load_model_and_tokenizer(model_path)
 
 # Create Gradio interface
 iface = gr.Interface(
