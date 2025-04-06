@@ -4,6 +4,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import gradio as gr
 import subprocess
 import os
+import string
 
 def run_shell_command(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
@@ -98,7 +99,7 @@ iface = gr.Interface(
     inputs=[
         gr.Textbox(lines=3, label="Input Prompt"),
         gr.Slider(minimum=10, maximum=768, value=32, label="Max Length"),
-        gr.Slider(minimum=1, maximum=5, value=1, label="Number of Sequences"),
+        # gr.Slider(minimum=1, maximum=5, value=1, label="Number of Sequences"),
         gr.Slider(minimum=0.1, maximum=1.0, value=0.95, label="Top-p Sampling"),
         gr.Slider(minimum=0.1, maximum=1.0, value=0.7, label="Temperature")
     ],
