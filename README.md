@@ -15,6 +15,12 @@ You can try this project demo at:
 ```bash
 pip install -r requirements.txt
 ```
+- Download download the 'danhtran2mind/vi-medical-t5-finetune-qa' model from Hugging Face using the following commands:
+```bash
+cd models
+git lfs clone https://huggingface.co/danhtran2mind/vi-medical-t5-finetune-qa
+cd ..
+```
 - Run Gradio app:
 ```bash
 python app.py
