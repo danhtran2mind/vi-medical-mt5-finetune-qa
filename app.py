@@ -55,6 +55,10 @@ def gradio_generate_text(prompt, max_length=100, num_return_sequences=1, top_p=0
     generated_text = generate_text(tokenizer, model, device, prompt, max_length, num_return_sequences, top_p, temperature)
     return generated_text
 
+# def gradio_generate_text(prompt, max_length, num_sequences, top_p, temperature):
+#     # Placeholder for your text generation logic
+#     return f"Generated text based on: {prompt}"
+
 # Ensure the models directory exists
 if not os.path.exists('models'):
     os.makedirs('models')
@@ -67,16 +71,19 @@ if not os.path.exists('models/vi-medical-t5-finetune-qa'):
 model_path = "models/vi-medical-t5-finetune-qa"
 tokenizer, model, device = load_model_and_tokenizer(model_path)
 # Create Gradio interface
+
+
+# Create the Gradio interface
 iface = gr.Interface(
     fn=gradio_generate_text,
     inputs=[
-        gr.inputs.Textbox(lines=5, label="Input Prompt"),
-        gr.inputs.Slider(minimum=10, maximum=500, default=100, label="Max Length"),
-        gr.inputs.Slider(minimum=1, maximum=10, default=1, label="Number of Sequences"),
-        gr.inputs.Slider(minimum=0.1, maximum=1.0, default=0.95, label="Top-p Sampling"),
-        gr.inputs.Slider(minimum=0.1, maximum=1.0, default=0.7, label="Temperature")
+        gr.Textbox(lines=5, label="Input Prompt"),
+        gr.Slider(minimum=10, maximum=768, value=32, label="Max Length"),
+        gr.Slider(minimum=1, maximum=5, value=1, label="Number of Sequences"),
+        gr.Slider(minimum=0.1, maximum=1.0, value=0.95, label="Top-p Sampling"),
+        gr.Slider(minimum=0.1, maximum=1.0, value=0.7, label="Temperature")
     ],
-    outputs=gr.outputs.Textbox(label="Generated Text"),
+    outputs=gr.Textbox(label="Generated Text"),
     title="Vietnamese Medical T5 Fine-Tuned Model",
     description="Generate text using a fine-tuned Vietnamese medical T5 model."
 )
