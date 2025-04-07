@@ -7,6 +7,9 @@ You can download dataset at this url: https://github.com/triet2397/UIT-ViCoV19QA
   - Validation Set: 0.322764.
 
 ## Demo
+### Demo Image
+![Demo Image](https://github.com/danhtran2mind/vi-medical-t5-finetune-qa/blob/main/demo_images/demo.png)
+### Demo Space
 You can try this project demo at: https://huggingface.co/spaces/danhtran2mind/vi-medical-t5-finetune-qa
 
 ## Usage
