@@ -1,94 +1,100 @@
 import torch
-import sentencepiece
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import gradio as gr
 import subprocess
 import os
-import string
-import re
 from underthesea import word_tokenize
 
 def run_shell_command(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
-    output, error = process.communicate()
-    if error:
-        raise Exception(f"Error running command: {command}\n{error.decode('utf-8')}")
-    return output.decode('utf-8')
+    try:
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        output, error = process.communicate()
+        if process.returncode != 0:
+            raise Exception(f"Error running command: {command}\n{error.decode('utf-8')}")
+        return output.decode('utf-8')
+    except Exception as e:
+        raise Exception(f"Failed to execute command: {command}\n{str(e)}")
 
 def load_model_and_tokenizer(model_path):
-    # Load the trained tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
-
-    # Load the trained model
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
-
-    # Move the model to the GPU if available
-    if torch.cuda.is_available():
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
-        
-    model.to(device)
-
-    return tokenizer, model, device
-
-
+    try:
+        # Load the trained tokenizer
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        # Load the trained model
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_path)
+        # Move the model to the GPU if available
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model.to(device)
+        return tokenizer, model, device
+    except Exception as e:
+        raise Exception(f"Failed to load model or tokenizer from {model_path}: {str(e)}")
 
 def generate_text(tokenizer, model, device, prompt, max_length=100,
-                  num_return_sequences=1, top_p=0.95, temperature=0.7):
+                  num_return_sequences=1, top_p=0.95, temperature=0.7, seed=123):
+    # Set the random seed for reproducibility
+    torch.manual_seed(seed)
+    if device.type == "cuda":
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)  # For multi-GPU setups
 
+    # Tokenize the input prompt with word segmentation
     prompt = word_tokenize(prompt, format='text')
-    # Tokenize the input prompt
     input_ids = tokenizer.encode(prompt, return_tensors='pt').to(device)
 
     # Generate text
     output = model.generate(
         input_ids,
-        # num_return_sequences=num_return_sequences,
+        max_length=int(max_length),
+        num_return_sequences=int(num_return_sequences),
         no_repeat_ngram_size=2,
         top_k=50,
-        max_length=max_length,
         top_p=top_p,
         temperature=temperature,
         do_sample=True
     )
 
     # Convert the generated text back to a string
-    generated_text = [tokenizer.decode(ids, skip_special_tokens=True) for ids in output]
+    generated_text = [tokenizer.decode(ids, skip_special_tokens=True).replace("_", " ").replace(" ,", ",").replace(" .", ".") for ids in output]
+    return "\n\n".join(generated_text)  # Join multiple sequences with newlines
 
-    return generated_text[0].replace("_", " ").replace(" ,", ",").replace(" .", ".")
+def gradio_generate_text(prompt, max_length, top_p, temperature, seed, num_return_sequences):
+    try:
+        # Load model and tokenizer
+        model_path = "models/vi-medical-mt5-finetune-qa"
+        tokenizer, model, device = load_model_and_tokenizer(model_path)
+        # Generate text
+        result = generate_text(tokenizer, model, device, prompt, max_length, num_return_sequences, top_p, temperature, seed)
+        return result
+    except Exception as e:
+        return f"Error: {str(e)}"
 
-def gradio_generate_text(prompt, max_length=100, num_return_sequences=1, top_p=0.95, temperature=0.7):
-    generated_text = generate_text(tokenizer, model, device, prompt, max_length, num_return_sequences, top_p, temperature)
-    return generated_text
-
-# Ensure the models directory exists
+# Ensure the models directory exists and clone the model if needed
 if not os.path.exists('models'):
     os.makedirs('models')
 if not os.path.exists('models/vi-medical-mt5-finetune-qa'):
-    # Run the Git LFS commands to clone the model
-    run_shell_command('git lfs install')
-    run_shell_command('cd models && git clone https://huggingface.co/danhtran2mind/vi-medical-mt5-finetune-qa && cd ..')
+    try:
+        run_shell_command('git lfs install')
+        run_shell_command('cd models && git clone https://huggingface.co/danhtran2mind/vi-medical-mt5-finetune-qa && cd ..')
+    except Exception as e:
+        print(f"Failed to clone model: {str(e)}")
 
-# Load the trained model and tokenizer
-model_path = "models/vi-medical-mt5-finetune-qa"
-tokenizer, model, device = load_model_and_tokenizer(model_path)
-# Create Gradio interface
-
-
-# Create the Gradio interface
-iface = gr.Interface(
-    fn=gradio_generate_text,
-    inputs=[
-        gr.Textbox(lines=3, label="Input Prompt"),
-        gr.Slider(minimum=10, maximum=768, value=32, label="Max Length"),
-        gr.Slider(minimum=0.1, maximum=1.0, value=0.95, label="Top-p Sampling"),
-        gr.Slider(minimum=0.1, maximum=1.0, value=0.7, label="Temperature")
-    ],
-    outputs=gr.Textbox(lines=5, label="Generated Text"),
-    title="Vietnamese Medical T5 Fine-Tune Question and Answer",
-    description="Generate text using a fine-tuned Vietnamese medical T5 model."
-)
-
-# Launch the Gradio interface
-iface.launch()
+# Define the Gradio interface
+with gr.Blocks() as demo:
+    gr.Markdown("# Vietnamese Medical mT5 Fine-Tune Question and Answer")
+    with gr.Row():
+        with gr.Column():
+            prompt = gr.Textbox(lines=3, label="Input Prompt", placeholder="Enter your prompt, e.g., 'vaccine covid-19 là gì?'")
+            max_length = gr.Slider(minimum=10, maximum=768, value=32, label="Max Length", step=1)
+            top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, label="Top-p Sampling", step=0.01)
+            temperature = gr.Slider(minimum=0.1, maximum=1.0, value=0.7, label="Temperature", step=0.01)
+            seed = gr.Slider(minimum=0, maximum=10000, value=123, label="Seed", step=1)
+            num_return_sequences = gr.Slider(minimum=1, maximum=5, value=1, label="Number of Sequences", step=1)
+            submit_button = gr.Button("Generate")
+        with gr.Column():
+            output = gr.Textbox(label="Generated Text", lines=10)
+    
+    submit_button.click(
+        fn=gradio_generate_text,
+        inputs=[prompt, max_length, top_p, temperature, seed, num_return_sequences],
+        outputs=output
+    )
+demo.launch()
