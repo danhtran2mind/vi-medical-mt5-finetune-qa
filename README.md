@@ -8,19 +8,19 @@ You can download dataset at this url: https://github.com/triet2397/UIT-ViCoV19QA
 
 ## Demo
 ### Demo Image
-![Demo Image](https://github.com/danhtran2mind/vi-medical-t5-finetune-qa/blob/main/demo_images/demo.png)
+![Demo Image](https://github.com/danhtran2mind/vi-medical-mt5-finetune-qa/blob/main/demo_images/demo.png)
 ### Demo Space
-You can try this project demo at: https://huggingface.co/spaces/danhtran2mind/vi-medical-t5-finetune-qa
+You can try this project demo at: https://huggingface.co/spaces/danhtran2mind/vi-medical-mt5-finetune-qa
 
 ## Usage
 - Install Denpendencies:
 ```bash
 pip install -r requirements.txt
 ```
-- Download download the 'danhtran2mind/vi-medical-t5-finetune-qa' model from Hugging Face using the following commands:
+- Download download the 'danhtran2mind/vi-medical-mt5-finetune-qa' model from Hugging Face using the following commands:
 ```bash
 cd models
-git clone https://huggingface.co/danhtran2mind/vi-medical-t5-finetune-qa
+git clone https://huggingface.co/danhtran2mind/vi-medical-mt5-finetune-qa
 cd ..
 ```
 - Run Gradio app:
