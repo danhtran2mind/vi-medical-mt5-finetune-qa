@@ -1,9 +1,23 @@
 <div align="center">
   <h1>
-    Vietnamese Medical mT5 Finetune Question and Answer
+    Vietnamese Medical mT5 Finetune Question and Answer 👨🏻‍⚕️
   </h1>
 </div>
 
+> **⚠️** Use this model only for research. Seek qualified medical advice for health concerns.
+
+## Introduction
+
+This repository provides a **Vietnamese medical question‑answering system** built by fine‑tuning the **mT5** model on the **UIT‑ViCoV19QA** dataset. This model achieves low loss on both training (≈ 0.306) and validation (≈ 0.323) sets, indicating strong performance for Vietnamese‑language medical queries.
+
+## Key Features
+
+- **Dataset**: Downloadable from the linked GitHub repository.  
+- **Demo**: An interactive Gradio interface is available both as a screenshot and a live Hugging Face Space.  
+- **Usage**: Simple installation steps, model download commands, and a one‑line command to launch the app locally (`python app.py`).  
+- **Environment**: Tested with Python 3.10.12 and a specific set of library versions (e.g., `transformers==4.47.0`, `torch==2.5.1+cu121`).
+
+The project is ready for researchers and developers who need a Vietnamese‑language medical QA system that can be deployed locally or integrated into larger applications.
 ## Dataset
 You can download dataset at this url: https://github.com/triet2397/UIT-ViCoV19QA
 ## Metrics
